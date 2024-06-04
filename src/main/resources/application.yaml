@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/halodb?createDatabaseIfNotExist=true
+    password: root
+    username: root
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        ddl-auto: update
+    generate-ddl: true
