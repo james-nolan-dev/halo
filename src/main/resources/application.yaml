@@ -10,3 +10,11 @@ spring:
         format_sql: true
         ddl-auto: update
     generate-ddl: true
+
+app:
+  security:
+    jwt:
+      issuer: Halo
+      secret: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+      access-token:
+        expiration: 2
