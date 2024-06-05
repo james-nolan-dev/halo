@@ -31,8 +31,6 @@ public class AuthServiceImpl implements AuthService {
             return tokenService.generateToken(userDetails.getUser());
         } catch (BadCredentialsException exception) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        } catch (UsernameNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 }

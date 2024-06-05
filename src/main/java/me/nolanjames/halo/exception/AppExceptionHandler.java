@@ -3,6 +3,7 @@ package me.nolanjames.halo.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.ToDoubleBiFunction;
+import java.util.stream.Collectors;
 
 
 @ControllerAdvice
@@ -26,15 +28,24 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppExceptionHandler.class);
 
     public ErrorDto handleGenericException(HttpServletRequest request, Exception exception) {
-        // TODO: 05/06/2024 Avoid creating new List here
         LOGGER.error(exception.getMessage(), exception);
-        List<String> errors = new ArrayList<>();
-        errors.add(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 
         return new ErrorDto(
                 new Date(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                errors,
+                List.of(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()),
+                request.getServletPath()
+        );
+
+    }
+
+    public ErrorDto handleUnauthorised(HttpServletRequest request, Exception exception) {
+        LOGGER.error(exception.getMessage(), exception);
+
+        return new ErrorDto(
+                new Date(),
+                HttpStatus.UNAUTHORIZED.value(),
+                List.of(HttpStatus.UNAUTHORIZED.getReasonPhrase()),
                 request.getServletPath()
         );
     }
@@ -45,18 +56,23 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatusCode status, WebRequest request) {
         LOGGER.error(exception.getMessage(), exception);
-        List<FieldError> fieldErrors = exception.getBindingResult().getFieldErrors();
 
-        // TODO: 05/06/2024 Avoid creating new List here
+        List<String> fieldErrors = exception.getBindingResult().getFieldErrors()
+                .stream()
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                .toList();
 
-        fieldErrors.forEach(fieldError -> {
-
-        })
-
-        new ErrorDto(
-                new Date(),
-                HttpStatus.BAD_REQUEST.value(),
-                (((ServletWebRequest) request).getRequest().getServletPath());
-        )
+        return new ResponseEntity<>(
+                new ErrorDto(
+                        new Date(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        fieldErrors,
+                        (((ServletWebRequest) request).getRequest().getServletPath())
+                ),
+                headers,
+                status
+        );
     }
+
+
 }
