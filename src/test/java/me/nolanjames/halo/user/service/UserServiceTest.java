@@ -81,9 +81,15 @@ class UserServiceTest {
                         .with(jwt().authorities(new SimpleGrantedAuthority("admin"))))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$[0].username").isString())
-                .andExpect(jsonPath("$[1].role").isString());
+                .andExpect(jsonPath("$.username").isString())
+                .andExpect(jsonPath("$.role").isString());
         ;
     }
+
+//    @Test
+//    @Transactional
+//    public void testUpdateUser() {
+//        UserRequest userRequest
+//    }
 
 }

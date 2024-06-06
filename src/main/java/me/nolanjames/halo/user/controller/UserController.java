@@ -2,6 +2,7 @@ package me.nolanjames.halo.user.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import me.nolanjames.halo.user.model.UpdateUserRequest;
 import me.nolanjames.halo.user.model.UserRequest;
 import me.nolanjames.halo.user.model.UserResponse;
 import me.nolanjames.halo.user.service.UserService;
@@ -26,5 +27,10 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserRequest request) {
         return new ResponseEntity<>(userService.createUser(request), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable int id, @RequestBody @Valid UpdateUserRequest request) {
+        return new ResponseEntity<>(userService.updateUser(id, request), HttpStatus.OK);
     }
 }

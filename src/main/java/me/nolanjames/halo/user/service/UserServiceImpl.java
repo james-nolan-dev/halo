@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import me.nolanjames.halo.user.entity.User;
 import me.nolanjames.halo.user.mapper.UserMappings;
 import me.nolanjames.halo.user.mapper.UserMappingsImpl;
+import me.nolanjames.halo.user.model.UpdateUserRequest;
 import me.nolanjames.halo.user.model.UserRequest;
 import me.nolanjames.halo.user.model.UserResponse;
 import me.nolanjames.halo.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -55,4 +57,21 @@ public class UserServiceImpl implements UserService {
 
         return userMappingsImpl.mapToUserResponse(user);
     }
+
+    @Override
+    public UserResponse updateUser(int id, UpdateUserRequest request) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User not Found");
+        }
+
+        User updatedUser = user.get();
+        updatedUser.setUsername(request.username());
+        updatedUser.setPassword(passwordEncoder.encode(request.password()));
+        updatedUser.setRole(request.role());
+        userRepository.save(updatedUser);
+
+        return userMappingsImpl.mapToUserResponse(updatedUser);
+    }
+
 }
