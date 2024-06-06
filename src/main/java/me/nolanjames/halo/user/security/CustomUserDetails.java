@@ -2,7 +2,6 @@ package me.nolanjames.halo.user.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.nolanjames.halo.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,6 +1,8 @@
 package me.nolanjames.halo.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import me.nolanjames.halo.security.jwt.JwtValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -11,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -39,6 +45,9 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
+    @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
     public ErrorDto handleUnauthorised(HttpServletRequest request, Exception exception) {
         LOGGER.error(exception.getMessage(), exception);
 
@@ -46,6 +55,20 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
                 new Date(),
                 HttpStatus.UNAUTHORIZED.value(),
                 List.of(HttpStatus.UNAUTHORIZED.getReasonPhrase()),
+                request.getServletPath()
+        );
+    }
+
+    @ExceptionHandler({JwtValidationException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public ErrorDto handleJwtException(HttpServletRequest request, Exception exception) {
+        LOGGER.error(exception.getMessage(), exception);
+
+        return new ErrorDto(
+                new Date(),
+                HttpStatus.UNAUTHORIZED.value(),
+                List.of(exception.getMessage()),
                 request.getServletPath()
         );
     }
@@ -73,6 +96,4 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
                 status
         );
     }
-
-
 }

@@ -33,7 +33,7 @@ public class JwtUtility {
             throw new IllegalArgumentException("User object is null or its field have null values.");
         }
         long expirationTimeInMillis = System.currentTimeMillis() + accessTokenExpiration * 60000L;
-        String subject = String.format("$s,$s", user.getId(), user.getUsername());
+        String subject = String.format("%s,%s", user.getId(), user.getUsername());
 
         return Jwts.builder()
                 .subject(subject)
