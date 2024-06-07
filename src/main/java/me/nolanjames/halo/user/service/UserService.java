@@ -16,4 +16,6 @@ public interface UserService {
     UserResponse createUser(UserRequest request);
 
     UserResponse updateUser(int id, UpdateUserRequest request);
+
+    void deleteUser(int id);
 }

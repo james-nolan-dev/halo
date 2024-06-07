@@ -74,4 +74,13 @@ public class UserServiceImpl implements UserService {
         return userMappingsImpl.mapToUserResponse(updatedUser);
     }
 
+    @Override
+    public void deleteUser(int id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User not Found");
+        }
+        userRepository.delete(user.get());
+    }
+
 }

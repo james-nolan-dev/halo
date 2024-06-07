@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import me.nolanjames.halo.security.auth.model.AuthRequest;
 import me.nolanjames.halo.security.auth.model.AuthResponse;
 import me.nolanjames.halo.user.entity.User;
+import me.nolanjames.halo.user.model.UpdateUserRequest;
 import me.nolanjames.halo.user.model.UserRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class UserServiceTest {
     private static final String USERS_ENDPOINT = "/api/users";
+    private static final String UPDATE_USER_ENDPOINT = "/api/users/1";
     private static final String GET_ACCESS_TOKEN_ENDPOINT = "/api/oauth/token";
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -83,13 +84,27 @@ class UserServiceTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").isString())
                 .andExpect(jsonPath("$.role").isString());
-        ;
     }
 
-//    @Test
-//    @Transactional
-//    public void testUpdateUser() {
-//        UserRequest userRequest
-//    }
+    @Test
+    @Transactional
+    public void testUpdateUser() throws Exception {
+        UpdateUserRequest userRequest = new UpdateUserRequest("JimJim", "password", "admin");
+        User user = User.builder()
+                .id(1)
+                .username(userRequest.username())
+                .password(passwordEncoder.encode(userRequest.password()))
+                .role(userRequest.role())
+                .build();
+        String requestBody = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(put(UPDATE_USER_ENDPOINT).contentType("application/json").content(requestBody)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("admin"))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").isString())
+                .andExpect(jsonPath("$.role").isString());
+
+    }
 
 }
